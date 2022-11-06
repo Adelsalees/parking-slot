@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\APi;
 
+use DateTime;
 use Carbon\Carbon;
 use Faker\Factory;
 use App\Models\User;
@@ -37,6 +38,14 @@ class AppoinmetController extends Controller
             "appoinment_end"=>'required',
             'vehicle_number'=>"required",
         ]);
+        $bookings= Appoinmet::where([['appoinment_start','<',new DateTime('now')]])->with('slot')->get();
+        if($bookings->count()>0){
+            foreach($bookings as $booking){
+                $booking->slot->update(['status'=>"Available"]);
+                dd( $booking->slot);
+            }
+        }
+
         $to = Carbon::createFromFormat('Y-m-d H:s:i', $request->appoinment_start);
         $from = Carbon::createFromFormat('Y-m-d H:s:i', $request->appoinment_end);
         if($to>$from){
@@ -48,6 +57,13 @@ class AppoinmetController extends Controller
         }
         $user=Auth::user();
         $slot=ParkingSlot::where('status','Available')->first();
+        if($slot->count()==0){
+            $response = [
+                'success' => false,
+                'message' => "All slots are booked",
+            ];    
+            return response()->json($response, 404);
+        }
         $slot->update(['status'=>'booked']);
         $booked_user=Appoinmet::where([['user_id','=',$user->id],['appoinment_start','=',$request->appoinment_start]])->get();
 
