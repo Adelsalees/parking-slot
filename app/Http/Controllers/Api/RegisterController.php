@@ -18,7 +18,7 @@ class RegisterController extends Controller
             'email' => 'required|email',
             'password' => 'required',
             'c_password' => 'required|same:password',
-            'driving_licence' => 'required|mime:pdf|min:2024|max:5125',
+            'driver_license' => 'required|mimes:pdf|min:2024|max:5125',
         ]);
         if($files=$request->file('driving_licence')){  
             $driving_licence=$files->getClientOriginalName();  
@@ -34,14 +34,23 @@ class RegisterController extends Controller
     
             return response()->json($response, 404);
         }
-       
+      $exist_user=User::where('email',$request->email)->first();
+       if(isset($exist_user)){
+        $response = [
+            'success' => false,
+            'message' => 'email already taken',
+        ];    
+
+        return response()->json($response, 404);
+       }
+      
         $user = User::create([
             'name'=>$request->name,
             'password'=>bcrypt($request->password),
             'email'=>$request->email,
-            "driving_licence"=>$driving_licence
+            "driver_license"=>$driving_licence
         ]);
-       
+        
         $success['token'] =  $user->createToken('MyApp')->plainTextToken;
         $success['name'] =  $user->name;
    
