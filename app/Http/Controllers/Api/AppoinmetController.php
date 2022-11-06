@@ -42,7 +42,7 @@ class AppoinmetController extends Controller
         if($bookings->count()>0){
             foreach($bookings as $booking){
                 $booking->slot->update(['status'=>"Available"]);
-                dd( $booking->slot);
+                
             }
         }
 
