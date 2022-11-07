@@ -81,7 +81,7 @@ class AppoinmetController extends Controller
         if($diff_in_hours<=3){
             $amount=10;
         }else{
-            $amount=10+($diff_in_hours*5);
+            $amount=10+(($diff_in_hours-3)*5);
         }
         $faker = Factory::create();
      $appoinment_id= $slot->name.strtoupper($faker->lexify('???'));
